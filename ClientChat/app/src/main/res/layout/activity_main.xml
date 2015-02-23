@@ -1,0 +1,55 @@
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
+
+        <android.support.v7.widget.Toolbar
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/toolbar"
+            android:minHeight="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#03A9F4"
+            android:fitsSystemWindows="true"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/listViewChat"
+            android:layout_marginBottom="50dp"
+            android:stackFromBottom="false"
+            android:transcriptMode="alwaysScroll" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="-50dp"
+            android:background="#FFF">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/editTextMessage"
+                android:textColor="#000"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:layout_marginRight="50dp"
+                android:paddingLeft="5dp" />
+
+            <ImageButton
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/btnSendMessage"
+                android:src="@mipmap/ic_action_sent"
+                android:layout_marginLeft="-50dp"
+                android:scaleType="centerCrop"
+                android:background="@android:color/white"
+                android:padding="7dp" />
+
+        </LinearLayout>
+    </LinearLayout>
