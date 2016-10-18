@@ -3,6 +3,7 @@ package com.pabloaraya.client;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -22,17 +23,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.pabloaraya.client.App.EVENT_MESSAGE;
+import static com.pabloaraya.client.App.VAR_EMPTY;
 
-public class MainActivity extends ActionBarActivity {
 
-    /* Socket Constant */
-    final private static String SOCKET_URL  = "http://192.168.56.1/";
-    final private static String EVENT_MESSAGE = "message";
-
-    /* Variables Constant */
-    final private static String VAR_MESSAGE = "message";
-    final private static String VAR_NAME = "name";
-    final private static String VAR_EMPTY = "unknown";
+public class MainActivity extends AppCompatActivity {
 
     /* UI Elements */
     Toolbar toolbar;
@@ -42,10 +37,6 @@ public class MainActivity extends ActionBarActivity {
 
     /* Socket */
     Socket socket;
-
-    /* SharedPreference */
-    SharedPreferences userPreference;
-    SharedPreferences.Editor userEditorPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +51,6 @@ public class MainActivity extends ActionBarActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
-        /* SharedPreference */
-        userPreference = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-        userEditorPreference = userPreference.edit();
-
         /* Initialize recycler view */
         recyclerView = (RecyclerView)findViewById(R.id.listViewChat);
         recyclerView.setHasFixedSize(true);
@@ -76,7 +63,7 @@ public class MainActivity extends ActionBarActivity {
         recyclerView.setAdapter(messageAdapter);
 
         try {
-            socket = IO.socket(SOCKET_URL);
+            socket = IO.socket(App.SOCKET_URL);
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -95,8 +82,8 @@ public class MainActivity extends ActionBarActivity {
                     try {
                         JSONObject messageJson = new JSONObject(args[0].toString());
                         final MessageModel messageModel = new MessageModel(
-                                messageJson.getString(VAR_MESSAGE),
-                                messageJson.getString(VAR_NAME));
+                                messageJson.getString(App.VAR_MESSAGE),
+                                messageJson.getString(App.VAR_USERNAME));
 
                         Thread thread = new Thread() {
                             @Override
@@ -128,14 +115,14 @@ public class MainActivity extends ActionBarActivity {
                 if(!editTextMessage.getText().toString().isEmpty()){
                     JSONObject messageJson = new JSONObject();
                     try {
-                        messageJson.put(VAR_MESSAGE, editTextMessage.getText().toString());
-                        messageJson.put(VAR_NAME, userPreference.getString(VAR_NAME, VAR_EMPTY));
+                        messageJson.put(App.VAR_MESSAGE, editTextMessage.getText().toString());
+                        messageJson.put(App.VAR_USERNAME, App.getSession().getString(App.VAR_USERNAME, VAR_EMPTY));
 
                         socket.emit(EVENT_MESSAGE, messageJson);
 
                         MessageModel messageModel =
                                 new MessageModel(editTextMessage.getText().toString(),
-                                        userPreference.getString(VAR_NAME, VAR_EMPTY));
+                                        App.getSession().getString(App.VAR_USERNAME, VAR_EMPTY));
                         messageAdapter.addMessage(messageModel);
 
                         recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
