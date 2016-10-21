@@ -18,6 +18,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageHolder>{
     private Context context;
     private List<MessageModel> messages;
 
+    private final static int VIEW_LAYOUT_MINE_MESSAGE = 0;
+    private final static int VIEW_LAYOUT_MESSAGE = 1;
+
     /* Typeface */
     private Typeface robotoLight;
 
@@ -29,7 +32,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageHolder>{
 
     @Override
     public MessageHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_message, null);
+
+        View view;
+        if(i == VIEW_LAYOUT_MINE_MESSAGE){
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_message_mine, null);
+        } else{
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_message, null);
+        }
         MessageHolder mh = new MessageHolder(view);
         return mh;
     }
@@ -71,5 +80,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageHolder>{
             messages.add(message);
         }
         notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemViewType(int i) {
+        if(messages.get(i).getName().equals(App.getSession().getString(App.VAR_USERNAME, App.VAR_EMPTY))){
+            return VIEW_LAYOUT_MINE_MESSAGE;
+        }else{
+            return VIEW_LAYOUT_MESSAGE;
+        }
     }
 }

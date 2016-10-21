@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     MessageAdapter messageAdapter;
     LinearLayoutManager linearLayoutManager;
+    EditText editTextMessage;
+    ImageButton btnJoin;
 
     /* Socket */
     Socket socket;
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(messageAdapter);
 
         try {
-            socket = IO.socket(App.SOCKET_URL);
+            socket = IO.socket(App.URL_SOCKET);
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -107,32 +109,40 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        final EditText editTextMessage = (EditText)findViewById(R.id.editTextMessage);
-        ImageButton btnSend = (ImageButton)findViewById(R.id.btnSendMessage);
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!editTextMessage.getText().toString().isEmpty()){
-                    JSONObject messageJson = new JSONObject();
-                    try {
-                        messageJson.put(App.VAR_MESSAGE, editTextMessage.getText().toString());
-                        messageJson.put(App.VAR_USERNAME, App.getSession().getString(App.VAR_USERNAME, VAR_EMPTY));
+        editTextMessage = (EditText)findViewById(R.id.editTextMessage);
+        btnJoin = (ImageButton)findViewById(R.id.btnSendMessage);
+        btnJoin.setOnClickListener(clickMessageListener);
+    }
 
-                        socket.emit(EVENT_MESSAGE, messageJson);
+    View.OnClickListener clickMessageListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(!editTextMessage.getText().toString().isEmpty()){
+                JSONObject messageJson = new JSONObject();
+                try {
+                    messageJson.put(App.VAR_MESSAGE, editTextMessage.getText().toString());
+                    messageJson.put(App.VAR_USERNAME, App.getSession().getString(App.VAR_USERNAME, VAR_EMPTY));
 
-                        MessageModel messageModel =
-                                new MessageModel(editTextMessage.getText().toString(),
-                                        App.getSession().getString(App.VAR_USERNAME, VAR_EMPTY));
-                        messageAdapter.addMessage(messageModel);
+                    socket.emit(EVENT_MESSAGE, messageJson);
 
-                        recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+                    MessageModel messageModel =
+                            new MessageModel(editTextMessage.getText().toString(),
+                                    App.getSession().getString(App.VAR_USERNAME, VAR_EMPTY));
+                    messageAdapter.addMessage(messageModel);
 
-                        editTextMessage.setText("");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+
+                    editTextMessage.setText("");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-        });
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        if(socket.connected()) socket.disconnect();
+        super.onDestroy();
     }
 }
